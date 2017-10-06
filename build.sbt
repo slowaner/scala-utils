@@ -2,8 +2,8 @@ import sbt.Keys._
 import sbt._
 import xerial.sbt.pack.PackPlugin
 
-val organizationName = "org.slowaner"
-val rootProjectName = "scala-utils"
+val organizationName = "com.github.slowaner.scala"
+val rootProjectName = "utils"
 
 // Versions
 // Testing
