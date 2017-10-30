@@ -1,4 +1,4 @@
-package org.slowaner.util
+package com.github.slowaner.scala.utils
 
 object OS {
 
