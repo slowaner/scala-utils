@@ -1,10 +1,13 @@
 package com.github.slowaner.scala.utils
 
+import java.nio.charset.Charset
+
 object OS {
 
   object OSTypes extends Enumeration {
     type OSType = Value
     val OSLinux: OSType = Value("OSLinux")
+    val OSAndroid: OSType = Value("OSAndroid")
     val OSWindows: OSType = Value("OSWindows")
     val OSMacintosh: OSType = Value("OSMacintosh")
     val OSUnknown: OSType = Value("OSUnknown")
@@ -22,6 +25,8 @@ object OS {
       OSTypes.OSWindows
     else if (os.startsWith("linux"))
       OSTypes.OSLinux
+    else if (os.startsWith("android"))
+      OSTypes.OSAndroid
     else if (os.startsWith("mac"))
       OSTypes.OSMacintosh
     else
@@ -51,6 +56,10 @@ object OS {
     osType == OSTypes.OSLinux
   }
 
+  def isAndroid: Boolean = {
+    osType == OSTypes.OSAndroid
+  }
+
   // Check Arch
   def isAmd64: Boolean = {
     osArch == OSArchs.Amd64
@@ -69,5 +78,17 @@ object OS {
   def getShortName: String = {
     if (osType == OSTypes.OSWindows) s"win$osBits"
     else s"unknown$osBits"
+  }
+
+  // Get console charset
+  lazy val ConsoleEncoding: Charset = {
+    val clazz = classOf[java.io.Console]
+    val method = clazz.getDeclaredMethod("encoding")
+    val prevAccessible = method.isAccessible
+    method.setAccessible(true)
+    val charsetString = method.invoke(null).asInstanceOf[String]
+    val charset = if (charsetString != null) Charset.forName(charsetString) else Charset.defaultCharset()
+    method.setAccessible(prevAccessible)
+    charset
   }
 }
