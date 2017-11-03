@@ -2,6 +2,17 @@ package com.github.slowaner.scala.utils
 
 import java.nio.charset.Charset
 
+import scala.io.Codec
+import scala.language.implicitConversions
+
+import com.sun.jna.{Native, Platform}
+import com.sun.jna.platform.win32.WinReg.HKEY
+import com.sun.jna.platform.win32._
+import com.sun.jna.ptr.IntByReference
+import com.sun.jna.win32.W32APIOptions
+
+import com.github.slowaner.scala.utils.jna.WinNls.{CPINFO, CPINFOEXA, CPINFOEXW}
+
 object OS {
 
   object OSTypes extends Enumeration {
@@ -81,7 +92,8 @@ object OS {
   }
 
   // Get console charset
-  lazy val ConsoleEncoding: Charset = {
+  // DO NOT USE THIS METHOD!!! It's bad idea to set private methods accessible via reflection!
+  /*lazy val ConsoleEncoding: Charset = {
     val clazz = classOf[java.io.Console]
     val method = clazz.getDeclaredMethod("encoding")
     val prevAccessible = method.isAccessible
@@ -90,5 +102,37 @@ object OS {
     val charset = if (charsetString != null) Charset.forName(charsetString) else Charset.defaultCharset()
     method.setAccessible(prevAccessible)
     charset
+  }*/
+
+  def GetConsoleOutputCharset: Charset = {
+    if (Platform.isWindows) {
+      val kern = Kernel32.INSTANCE
+
+      // Get codepage
+      val ccp = kern.GetConsoleOutputCP()
+
+      // Find codepage encoding name in registry
+      val codePageName = Advapi32Util.registryGetStringValue(WinReg.HKEY_CLASSES_ROOT, s"MIME\\Database\\Codepage\\$ccp", "BodyCharset").trim
+
+      if (codePageName.nonEmpty) Charset.forName(codePageName)
+      else Charset.defaultCharset()
+    }
+    else Charset.defaultCharset()
+  }
+
+  def GetConsoleCharset: Charset = {
+    if (Platform.isWindows) {
+      val kern = Kernel32.INSTANCE
+
+      // Get codepage
+      val ccp = kern.GetConsoleCP()
+
+      // Find codepage encoding name in registry
+      val codePageName = Advapi32Util.registryGetStringValue(WinReg.HKEY_CLASSES_ROOT, s"MIME\\Database\\Codepage\\$ccp", "BodyCharset").trim
+
+      if (codePageName.nonEmpty) Charset.forName(codePageName)
+      else Charset.defaultCharset()
+    }
+    else Charset.defaultCharset()
   }
 }
