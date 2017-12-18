@@ -104,12 +104,14 @@ object OS {
     charset
   }*/
 
+//  def SetConsoleCodePage(codePage: Int): Unit = if (Platform.isWindows) Kernel32.INSTANCE.SetConsoleCP(codePage)
+
+//  def SetConsoleOutputCodePage(codePage: Int): Unit = if (Platform.isWindows) Kernel32.INSTANCE.SetConsoleOutputCP(codePage)
+
   def GetConsoleOutputCharset: Charset = {
     if (Platform.isWindows) {
-      val kern = Kernel32.INSTANCE
-
       // Get codepage
-      val ccp = kern.GetConsoleOutputCP()
+      val ccp = Kernel32.INSTANCE.GetConsoleOutputCP()
 
       // Find codepage encoding name in registry
       val codePageName = Advapi32Util.registryGetStringValue(WinReg.HKEY_CLASSES_ROOT, s"MIME\\Database\\Codepage\\$ccp", "BodyCharset").trim
@@ -122,10 +124,8 @@ object OS {
 
   def GetConsoleCharset: Charset = {
     if (Platform.isWindows) {
-      val kern = Kernel32.INSTANCE
-
       // Get codepage
-      val ccp = kern.GetConsoleCP()
+      val ccp = Kernel32.INSTANCE.GetConsoleCP()
 
       // Find codepage encoding name in registry
       val codePageName = Advapi32Util.registryGetStringValue(WinReg.HKEY_CLASSES_ROOT, s"MIME\\Database\\Codepage\\$ccp", "BodyCharset").trim
